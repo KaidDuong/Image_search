@@ -3,54 +3,64 @@ import os
 # import the necessary packages
 import numpy as np
 import cv2
-from skimage.io import imread
-from app.mrcnn.model import MaskRCNN
-from app.mrcnn.model import mold_image
-from app.graphical_object.training import GraphicalObjectConfig
-class InferenceConfig(GraphicalObjectConfig):
-            # Set batch size to 1 since we'll be running inference on
-            # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
-            GPU_COUNT = 1
-            IMAGES_PER_GPU = 1
+import skimage.io
 
-def detections(ROOT_DIR, image_paths):
-    print(image_paths)
-    MODEL_DIR = os.path.join(ROOT_DIR,'static','model_weights')
-    inference_config = InferenceConfig()
+# class InferenceConfig(GraphicalObjectConfig):
+#             # Set batch size to 1 since we'll be running inference on
+#             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+#             GPU_COUNT = 1
+#             IMAGES_PER_GPU = 1
 
-    # Recreate the model in inference mode
-    model = MaskRCNN(mode="inference", 
-                          config=inference_config,
-                          model_dir=MODEL_DIR)
+# def detections(ROOT_DIR, image_paths):
+#     print(image_paths)
+#     MODEL_DIR = os.path.join(ROOT_DIR,'static','model_weights')
+#     inference_config = InferenceConfig()
 
-    # Get path to saved weights
-    # Either set a specific path or find last trained weights
-    model_path = os.path.join(MODEL_DIR, "mask_rcnn_graphical_object_0080.h5")
-    # model_path = model.find_last()
+#     # Recreate the model in inference mode
+#     model = MaskRCNN(mode="inference", 
+#                           config=inference_config,
+#                           model_dir=MODEL_DIR)
 
-    # Load trained weights
-    print("[INFO] Loading weights from ", model_path)
-    model.load_weights(model_path, by_name=True)
+#     # Get path to saved weights
+#     # Either set a specific path or find last trained weights
+#     model_path = os.path.join(MODEL_DIR, "mask_rcnn_graphical_object_0080.h5")
+#     # model_path = model.find_last()
+
+#     # Load trained weights
+#     print("Loading weights from ", model_path)
+#     model.load_weights(model_path, by_name=True)
     
+#     print("[INFO] Load images ...")
+#     # load image 
+#     images = load_image(image_paths)
     
-    print('[INFO] Deteting...')
-    results = []
-    for path in image_paths:
-        # load image
-        image = imread(path)
-        # convert pixel values (e.g. center)
-        scaled_image = mold_image(image, inference_config)
-        # convert image into one sample
-        sample = np.expand_dims(scaled_image, 0)
+#     print('[INFO] Deteting...')
+#     results = []
+#     for image in images:
+#         # Run object detection
+#         result = model.detect([image], verbose=1)
 
-        # Run object detection
-        result = model.detect(sample, verbose=0)
+#         # save the result
+#         results.append(result)
+#     print('[INFO] Finish the detection.')
+#     return results
 
-        # save the result
-        results.append(result)
-    print('[INFO] Finish the detection.')
-    return results
-
+def load_image(image_paths):
+    """Load the specified images and return a list of the [H,W,3] Numpy array.
+    """
+    images = []
+    for path in image_paths: 
+        # Load image
+        image = skimage.io.imread(path)
+        # If grayscale. Convert to RGB for consistency.
+        if image.ndim != 3:
+            image = skimage.color.gray2rgb(image)
+        # If has an alpha channel, remove it for consistency
+        if image.shape[-1] == 4:
+            image = image[..., :3]
+        
+        images.append(image)
+    return images
 
 
 def dhash(image, hashSize=8):

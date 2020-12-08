@@ -66,10 +66,10 @@
                     <div class="col-sm-4">
                       <div class="btn-group btn-group-toggle" data-toggle="buttons">
                         <label class="btn bg-olive active">
-                          <input type="radio" name="options" id="option_b1" autocomplete="off" checked> Url 
+                          <input type="radio" name="options" id="option_b1" autocomplete="off" checked> Single 
                         </label>
                         <label class="btn bg-olive">
-                          <input type="radio" name="options" id="option_b2" autocomplete="off"> Upload  
+                          <input type="radio" name="options" id="option_b2" autocomplete="off"> Multiple 
                         </label>
                       </div>
                     </div>
@@ -80,7 +80,7 @@
                   <div class="col-sm-8">
                     <div class="form-group">
                       <!-- <label for="exampleInputEmail1">Image URL</label> -->
-                      <input type="text" name="link" class="form-control" id="exampleInputEmail1" placeholder="Enter a URL of the image">
+                      <input type="text" name="link" class="form-control" id="exampleInputEmail1" placeholder="Enter a URL of the image's product">
                     </div>
                   </div>
                   <div class="col-sm-2"></div>
@@ -120,58 +120,6 @@
           <!-- /.col -->
         </div>
         <!-- /.row -->
-        <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Result for search</h3>
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-1"></div>
-                  <div class="col-4">
-                    <div class="card">
-                      <div class="card-header">
-                        <h5 class="card-title">Input</h5>
-                      </div>
-                      <div class="card-body">
-                        <img src="{{url_for('graphical_object_blueprint.static', filename=result['query'])}}"
-                        style="width: 300px;height: 300px;" />
-                      </div>
-                    </div>
-                 </div>
-                 <div class="col-2"></div>
-                 <div class="col-4">
-                  <div class="card">
-                    <div class="card-header">
-                      <h5 class="card-title">Output</h5>
-                    </div>
-                    <div class="card-body" style="MAX-HEIGHT: 600PX;
-                    overflow-y: auto;">
-                      <div class="row">
-                        <p>Time: {{result['time']}} &nbsp; seconds</p>
-                      </div>
-                      {% for res in result['response'] %}
-                      <div class="row">
-                        <p>Score: {{res['score']}}%</p>
-                        <img src="{{res['paths'][0]}}" style="width: 300px;height: 300px;" />
-                      </div>
-                      {% endfor %}
-                    </div>
-                    </div>
-                  </div>
-                   
-                 <div class="col-1"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- /.container-fluid -->
     </section>

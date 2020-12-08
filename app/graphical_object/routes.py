@@ -21,7 +21,6 @@ from app.graphical_object.models import Document
 from app.graphical_object.utils import convert_hash
 from app.graphical_object.utils import hamming
 from app.graphical_object.utils import dhash
-from app.graphical_object.utils import detections
 from imutils import paths
 from imutils import url_to_image
 import pickle
@@ -29,10 +28,8 @@ import vptree
 import cv2
 import time
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
-result = {}
-detect = []
+
 @blueprint.route('/graphical_object/indexing')
 @login_required
 def indexing():
@@ -88,7 +85,7 @@ def searching():
     # check exist user
     if not current_user.is_authenticated:
         return redirect(url_for('base_blueprint.login'))
-    return render_template('searching.html', result = result)
+    return render_template('searching.html')
 
 @blueprint.route('/graphical_object/search', methods=['POST'])
 @login_required
@@ -107,14 +104,14 @@ def search():
 
     if form['link'] == '':
         filename = secure_filename(file['file'].filename)
-        image_query = os.path.join(basedir, 'static', 'queries', filename)
-        file['file'].save(image_query)
+        img_path = os.path.join(basedir, 'static', 'queries', filename)
+        file['file'].save(img_path)
 
-        image = cv2.imread(image_query)
+        image = cv2.imread(img_path)
     else:
         image_query = form['link']
         image = url_to_image(image_query)
-    query = '/' + '/'.join(image_query.split('\\')[8:]) 
+
     # compute the hash for the query image, then convert it
     queryHash = dhash(image)
     queryHash = convert_hash(queryHash)
@@ -130,18 +127,13 @@ def search():
     # loop over the results
     for (d, h) in results:
 	    # grab all image paths in our dataset with the same hash
-        paths = ['/' + '/'.join(path.split('\\')[8:]) for path in hashes.get(h, [])]
-
-        r = {'score' : (10-d)*10 , 'hash': h, 'paths': paths }
+        r = {'score' : (10-d)*10 , 'hash': h, 'paths': hashes.get(h, []) }
 	    # print("[INFO] {} total image(s) with d: {}, h: {}".format(
 		#     len(resultPaths), d, h))
 	    # print(resultPaths)
         response.append(r)
     
-    #res = json.dumps({'status': 'OK','message':'The Result of the search is displayed!', 'response' : response}, ensure_ascii=False)
-    
-    global result 
-    result = {'response': response, 'time': end - start, 'query': query}
+    print(response)
     return json.dumps({'status': 'OK','message':'The Result of the search is displayed!'})
 
 @blueprint.route('/graphical_object/detect', methods=['POST'])
@@ -180,13 +172,11 @@ def detect():
         image_paths.append(path)
 
     # Detect graphical object in document images
-    results = detections(basedir, image_paths)
-    global detect 
-    detect = results
-    print(f'type: {type(results)} --- {results}')
-    # #save info document into Database
-    with open(os.path.join(basedir,"static","results","result.json", "w") ) as json_file: 
-         json_file.write(json.dumps(results)) 
+    #results = detections(basedir, image_paths)
+    #print(f'type: {type(results)} --- {results}')
+    # save info document into Database
+    # with open(os.path.join(basedir,"static","test","test.json", "w") ) as json_file: 
+    #     json_file.write(json.dumps(results)) 
     # doc = Document(
     #     name = name_doc,
     #     total_page= len(images)
@@ -205,7 +195,7 @@ def detection():
     if not current_user.is_authenticated:
         return redirect(url_for('base_blueprint.login'))
 
-    return render_template('detection.html', detect = detect)
+    return render_template('detection.html')
 
 @blueprint.route('graphical_object/<template>')
 def route_template(template):

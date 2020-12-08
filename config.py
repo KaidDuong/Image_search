@@ -16,9 +16,8 @@ class Config(object):
     SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_007')
     
     # This will create a file in <app> FOLDER
-    db_name = os.getenv('ENV_DEPLOYMENT').lower()
     
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, f'{db_name}.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
